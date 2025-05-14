@@ -1,0 +1,16 @@
+{% load menu_tags %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Пример меню</title>
+    <style>
+        ul { list-style: none; padding-left: 20px; }
+        .active > a { font-weight: bold; color: #007bff; }
+    </style>
+</head>
+<body>
+    <h1>Пример древовидного меню</h1>
+    {% draw_menu 'main_menu' %}
+</body>
+</html> 
