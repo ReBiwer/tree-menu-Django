@@ -1,0 +1,15 @@
+services:
+  app-django:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    container_name: app-django
+    ports:
+      - 8000:8000
+    networks:
+      - app-django
+
+networks:
+  app-django:
+    driver: bridge

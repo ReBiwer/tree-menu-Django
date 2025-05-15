@@ -1,0 +1,12 @@
+env/
+.venv/
+.idea/
+.git/
+.gitignore
+.pre-commit-config.yaml
+tests/
+docker_compose/
+media/
+logs/
+Dockerfile
+Makefile
