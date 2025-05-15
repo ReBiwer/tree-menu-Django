@@ -8,7 +8,13 @@ register = template.Library()
 def get_menu_tree(items: List[MenuItem]) -> List[MenuItem]:
     """
     Преобразует плоский список пунктов меню в дерево (иерархию).
-    return список корневых пунктов (верхний уровень меню).
+    
+    Аргументы:
+        items: Список всех пунктов меню (MenuItem) для данного меню.
+    
+    Возвращает:
+        Список корневых пунктов меню (верхний уровень), где у каждого пункта
+        могут быть динамически добавлены дочерние элементы (children_cache).
     """
     item_dict: Dict[int, MenuItem] = {item.id: item for item in items}
     tree: List[MenuItem] = []
@@ -23,6 +29,18 @@ def get_menu_tree(items: List[MenuItem]) -> List[MenuItem]:
     return tree
 
 def find_active_path(items: List[MenuItem], current_path: str) -> Tuple[Optional[MenuItem], Set[int]]:
+    """
+    Находит активный пункт меню и путь к нему (множество id пунктов от активного до корня).
+    
+    Аргументы:
+        items: Список всех пунктов меню (MenuItem).
+        current_path: Текущий абсолютный путь (например, request.build_absolute_uri()).
+    
+    Возвращает:
+        Кортеж из:
+            - активного пункта меню (MenuItem) или None, если не найден;
+            - множества id пунктов, составляющих путь от активного пункта к корню (используется для подсветки и раскрытия веток).
+    """
     active_item: Optional[MenuItem] = None
     for item in items:
         if item.get_url() == current_path:
@@ -41,6 +59,18 @@ def find_active_path(items: List[MenuItem], current_path: str) -> Tuple[Optional
     return None, set()
 
 def render_menu_items(nodes: List[MenuItem], active_path: Set[int], level: int = 0) -> str:
+    """
+    Рекурсивно строит HTML для меню на основе дерева пунктов.
+    
+    Аргументы:
+        nodes: Список пунктов меню (MenuItem) текущего уровня (обычно корневые).
+        active_path: Множество id пунктов, составляющих путь к активному пункту.
+        level: Текущий уровень вложенности (0 — корень).
+    
+    Возвращает:
+        HTML-строку с вложенными <ul> и <li> для меню.
+        Ветки, ведущие к активному пункту, раскрыты, активный пункт выделен классом 'active'.
+    """
     html = '<ul>'
     for node in nodes:
         is_active = node.id in active_path
@@ -56,6 +86,16 @@ def render_menu_items(nodes: List[MenuItem], active_path: Set[int], level: int =
 
 @register.simple_tag(takes_context=True)
 def draw_menu(context: Dict[str, Any], menu_name: str) -> str:
+    """
+    Django template tag для отрисовки древовидного меню по имени.
+    
+    Аргументы:
+        context: Контекст шаблона (должен содержать request).
+        menu_name: Имя меню (Menu), которое нужно отобразить.
+    
+    Возвращает:
+        HTML-строку с меню, где активный пункт и путь к нему подсвечены и раскрыты.
+    """
     request = context['request']
     current_path = request.build_absolute_uri()
     try:
